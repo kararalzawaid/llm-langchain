@@ -24,10 +24,13 @@ def get_product_price(product: str) -> float:
 def apply_discount(price: float, discount_tier: str) -> float:
     """Apply a discount tier to a price and return the final price.
     Available tiers: bronze, silver, gold."""
-    print(f"    >> Executing apply_discount(price={price}, discount_tier='{discount_tier}')")
+    print(
+        f"    >> Executing apply_discount(price={price}, discount_tier='{discount_tier}')"
+    )
     discount_percentages = {"bronze": 5, "silver": 12, "gold": 23}
     discount = discount_percentages.get(discount_tier, 0)
     return round(price * (1 - discount / 100), 2)
+
 
 # Difference 2: Without @tool, we must MANUALLY define the JSON schema for each function.
 # This is exactly what LangChain's @tool decorator generates automatically
@@ -95,6 +98,7 @@ tools_for_llm = [
 def ollama_chat_traced(messages):
     return ollama.chat(model=MODEL, tools=tools_for_llm, messages=messages)
 
+
 # --- Agent Loop ---
 
 
@@ -104,8 +108,6 @@ def run_agent(question: str):
         "get_product_price": get_product_price,
         "apply_discount": apply_discount,
     }
-
-
 
     print(f"Question: {question}")
     print("=" * 60)
@@ -160,7 +162,6 @@ def run_agent(question: str):
 
         # Difference 7: Direct function call instead of tool.invoke()
         observation = tool_to_use(**tool_args)
-
 
         print(f"  [Tool Result] {observation}")
 
