@@ -27,11 +27,14 @@ def get_product_price(product: str) -> float:
 def apply_discount(price: float, discount_tier: str) -> float:
     """Apply a discount tier to a price and return the final price.
     Available tiers: bronze, silver, gold."""
-    print(f"    >> Executing apply_discount(price={price}, discount_tier='{discount_tier}')")
+    print(
+        f"    >> Executing apply_discount(price={price}, discount_tier='{discount_tier}')"
+    )
     price = float(price)
     discount_percentages = {"bronze": 5, "silver": 12, "gold": 23}
     discount = discount_percentages.get(discount_tier, 0)
     return round(price * (1 - discount / 100), 2)
+
 
 tools = {
     "get_product_price": get_product_price,
@@ -40,6 +43,7 @@ tools = {
 
 # CHANGE 3: Delete the JSON schemas. Tools now live inside the prompt as plain text.
 # We derive descriptions from the functions themselves using inspect.
+
 
 def get_tool_descriptions(tools_dict):
     descriptions = []
@@ -50,6 +54,7 @@ def get_tool_descriptions(tools_dict):
         docstring = inspect.getdoc(tool_function) or ""
         descriptions.append(f"{tool_name}{signature} - {docstring}")
     return "\n".join(descriptions)
+
 
 tool_descriptions = get_tool_descriptions(tools)
 tool_names = ", ".join(tools.keys())
@@ -82,17 +87,13 @@ Question: {{question}}
 Thought:"""
 
 
-
-
 # CHANGE 4: Drop tools= from ollama.chat(). The LLM has no idea it's an agent —
 # all agency comes from the prompt above and our regex parsing below.
+
 
 @traceable(name="Ollama Chat", run_type="llm")
 def ollama_chat_traced(model, messages, options):
     return ollama.chat(model=model, messages=messages, options=options)
-
-
-
 
 
 # --- Agent Loop ---
@@ -103,10 +104,9 @@ def run_agent(question: str):
     print(f"Question: {question}")
     print("=" * 60)
 
-
     # CHANGE 5: One prompt string replaces the system/user message split.
     prompt = react_prompt.format(question=question)
-    scratchpad = "" 
+    scratchpad = ""
 
     for iteration in range(1, MAX_ITERATIONS + 1):
         print(f"\n--- Iteration {iteration} ---")
@@ -130,8 +130,6 @@ def run_agent(question: str):
             print("\n" + "=" * 60)
             print(f"Final Answer: {final_answer}")
             return final_answer
-
-
 
         # CHANGE 6: Parse tool calls from raw text with regex — fragile if LLM doesn't follow format.
         print(f"  [Parsing] Looking for Action and Action Input in LLM output...")
@@ -160,12 +158,10 @@ def run_agent(question: str):
         else:
             observation = str(tools[tool_name](*args))
 
-
         print(f"  [Tool Result] {observation}")
 
         # CHANGE 7: History is one growing string re-sent every iteration (replaces messages.append).
         scratchpad += f"{output}\nObservation: {observation}\nThought:"
-
 
     print("ERROR: Max iterations reached without a final answer")
     return None
