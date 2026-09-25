@@ -12,8 +12,7 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_pinecone import PineconeVectorStore
 from langchain_tavily import TavilyCrawl, TavilyExtract, TavilyMap
 
-from logger import (Colors, log_error, log_header, log_info, log_success,
-                    log_warning)
+from logger import Colors, log_error, log_header, log_info, log_success, log_warning
 
 load_dotenv()
 
@@ -29,10 +28,10 @@ embeddings = OpenAIEmbeddings(
     chunk_size=50,
     retry_min_seconds=10,
 )
-vec torstore = Chroma(persist_directory="chroma_db", embedding_function=embeddings)
-# vectorstore = PineconeVectorStore(
-    # index_name="langchain-docs-2026", embedding=embeddings
-# )
+# vec torstore = Chroma(persist_directory="chroma_db", embedding_function=embeddings)
+vectorstore = PineconeVectorStore(
+    index_name="langchain-docs-2026", embedding=embeddings
+)
 tavily_extract = TavilyExtract()
 tavily_map = TavilyMap(max_depth=5, max_breadth=20, max_pages=1000)
 tavily_crawl = TavilyCrawl()
